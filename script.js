@@ -354,8 +354,9 @@
     setDefaultDates() {
         const today = new Date(), first = new Date(today.getFullYear(), today.getMonth(), 1);
         const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        const t = today.toISOString().split('T')[0], f = first.toISOString().split('T')[0];
-        const l = lastDay.toISOString().split('T')[0];
+        // Use local date format to avoid timezone issues
+        const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const t = formatDate(today), f = formatDate(first), l = formatDate(lastDay);
         ['expenseDate','incomeDate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = t; });
         ['expenseDateFrom','incomeDateFrom'].forEach(id => { const el = document.getElementById(id); if (el) el.value = f; });
         ['expenseDateTo','incomeDateTo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = t; });
@@ -951,11 +952,12 @@
         const today = new Date();
         const first = new Date(today.getFullYear(), today.getMonth(), 1);
         const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         this.dateRangeStart = first;
         this.dateRangeEnd = lastDay;
         this.selectingStart = true;
-        document.getElementById('transactionDateFrom').value = first.toISOString().split('T')[0];
-        document.getElementById('transactionDateTo').value = lastDay.toISOString().split('T')[0];
+        document.getElementById('transactionDateFrom').value = formatDate(first);
+        document.getElementById('transactionDateTo').value = formatDate(lastDay);
         document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
         const el = document.getElementById('transactionCurrentMonth');
         const months = this.t('months');
@@ -1018,8 +1020,9 @@
     }
 
     applyDateRange() {
-        const fromDate = this.dateRangeStart.toISOString().split('T')[0];
-        const toDate = this.dateRangeEnd.toISOString().split('T')[0];
+        const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const fromDate = formatDate(this.dateRangeStart);
+        const toDate = formatDate(this.dateRangeEnd);
         document.getElementById('transactionDateFrom').value = fromDate;
         document.getElementById('transactionDateTo').value = toDate;
         this.updateTransactionMonthDisplay();
