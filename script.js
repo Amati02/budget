@@ -1740,52 +1740,8 @@
 
 
     attachSwipeHandlers() {
-        document.querySelectorAll('.transaction-item').forEach(item => {
-            let startX = 0, currentX = 0, isDragging = false, hasMoved = false;
-            
-            item.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                currentX = startX; // Initialize currentX to startX
-                isDragging = true;
-                hasMoved = false;
-                item.style.transition = 'none';
-            });
-            
-            item.addEventListener('touchmove', (e) => {
-                if (!isDragging) return;
-                currentX = e.touches[0].clientX;
-                const diff = currentX - startX;
-                // Only consider it a swipe if moved more than 10px
-                if (Math.abs(diff) > 10) {
-                    hasMoved = true;
-                }
-                if (diff < 0) {
-                    item.style.transform = 'translateX(' + diff + 'px)';
-                    item.style.opacity = 1 + (diff / 200);
-                }
-            });
-            
-            item.addEventListener('touchend', () => {
-                if (!isDragging) return;
-                isDragging = false;
-                item.style.transition = 'all 0.3s ease';
-                
-                // Only delete if user actually swiped (moved) and swiped far enough
-                if (hasMoved && (currentX - startX) < -100) {
-                    item.style.transform = 'translateX(-100%)';
-                    item.style.opacity = '0';
-                    setTimeout(() => {
-                        const id = parseInt(item.dataset.id);
-                        const type = item.dataset.type;
-                        if (type === 'expense') this.deleteExpense(id);
-                        else this.deleteIncome(id);
-                    }, 300);
-                } else {
-                    item.style.transform = 'translateX(0)';
-                    item.style.opacity = '1';
-                }
-            });
-        });
+        // Swipe-to-delete disabled - was causing accidental deletions
+        // Transactions can be deleted from the edit screen instead
     }
 
     setPresetDate(type, days) {
