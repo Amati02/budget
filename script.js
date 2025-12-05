@@ -782,7 +782,11 @@
 
     updateTransactionsList() {
         const list = document.getElementById('transactionsList'); if (!list) return;
-        const all = [...this.data.expenses.map(e => ({...e, type: 'expense'})), ...this.data.income.map(i => ({...i, type: 'income'}))].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+        const all = [...this.data.expenses.map(e => ({...e, type: 'expense'})), ...this.data.income.map(i => ({...i, type: 'income'}))].sort((a, b) => {
+            const dateCompare = new Date(b.date) - new Date(a.date);
+            if (dateCompare !== 0) return dateCompare;
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        }).slice(0, 3);
         if (all.length === 0) { list.innerHTML = '<div class="empty-transactions">' + getCategoryIconHTML('receipt') + '<p>' + this.t('noTransactions') + '</p></div>'; return; }
         list.innerHTML = all.map(t => '<div class="transaction-item"><div class="transaction-icon">' + this.getCategoryIcon(t.category) + '<span class="type-indicator ' + t.type + '"><i class="fas fa-arrow-' + (t.type === 'income' ? 'down' : 'up') + '"></i></span></div><div class="transaction-details"><span class="transaction-name">' + t.category + '</span><span class="transaction-date">' + this.formatDate(t.date) + '</span></div><span class="transaction-amount ' + t.type + '">' + (t.type === 'expense' ? '-' : '+') + this.formatCurrency(t.amount) + '</span></div>').join('');
     }
@@ -916,6 +920,10 @@
             const date = t.date;
             if (!grouped[date]) grouped[date] = [];
             grouped[date].push(t);
+        });
+        // Sort transactions within each date by createdAt (newest first)
+        Object.keys(grouped).forEach(date => {
+            grouped[date].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
         });
         return grouped;
     }
@@ -1200,7 +1208,12 @@
                 if (trDate > toDate) return false;
             }
             return true;
-        }).sort((a, b) => new Date(b.date) - new Date(a.date));
+        }).sort((a, b) => {
+            const dateCompare = new Date(b.date) - new Date(a.date);
+            if (dateCompare !== 0) return dateCompare;
+            // Same date - sort by createdAt (newest first)
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+        });
     }
 
     toggleTransactionSearch() {
