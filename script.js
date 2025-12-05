@@ -346,14 +346,25 @@
         const months = this.t('months');
         const el = document.getElementById('currentMonth');
         if (el) el.textContent = months[new Date().getMonth()];
+        // Also update transactions month display to current month
+        const transEl = document.getElementById('transactionCurrentMonth');
+        if (transEl) transEl.textContent = months[new Date().getMonth()];
     }
 
     setDefaultDates() {
         const today = new Date(), first = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         const t = today.toISOString().split('T')[0], f = first.toISOString().split('T')[0];
+        const l = lastDay.toISOString().split('T')[0];
         ['expenseDate','incomeDate'].forEach(id => { const el = document.getElementById(id); if (el) el.value = t; });
         ['expenseDateFrom','incomeDateFrom'].forEach(id => { const el = document.getElementById(id); if (el) el.value = f; });
         ['expenseDateTo','incomeDateTo'].forEach(id => { const el = document.getElementById(id); if (el) el.value = t; });
+        
+        // Set default date range for transactions page to current month
+        this.dateRangeStart = first;
+        this.dateRangeEnd = lastDay;
+        document.getElementById('transactionDateFrom').value = f;
+        document.getElementById('transactionDateTo').value = l;
     }
 
     showSection(name) {
@@ -936,14 +947,19 @@
     }
 
     clearDateRange() {
-        this.dateRangeStart = null;
-        this.dateRangeEnd = null;
+        // Reset to current month instead of all time
+        const today = new Date();
+        const first = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        this.dateRangeStart = first;
+        this.dateRangeEnd = lastDay;
         this.selectingStart = true;
-        document.getElementById('transactionDateFrom').value = '';
-        document.getElementById('transactionDateTo').value = '';
+        document.getElementById('transactionDateFrom').value = first.toISOString().split('T')[0];
+        document.getElementById('transactionDateTo').value = lastDay.toISOString().split('T')[0];
         document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
         const el = document.getElementById('transactionCurrentMonth');
-        if (el) el.textContent = this.t('allTime');
+        const months = this.t('months');
+        if (el) el.textContent = months[today.getMonth()];
         this.updateTransactionsPage();
         this.closeDateRange();
     }
