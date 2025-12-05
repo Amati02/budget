@@ -213,11 +213,31 @@
     }
 
     async init() {
-        try { await this.loadDataFromAPI(); } catch (e) { console.error('API error:', e); }
+        try { await this.loadDataFromAPI(); } catch (e) { 
+            console.error('API error, using localStorage:', e); 
+            this.useLocalStorage = true;
+            this.loadFromLocalStorage();
+        }
         this.setupEventListeners();
         this.applyTranslations();
         this.updateLanguageButtons();
         this.updateUI();
+    }
+
+    loadFromLocalStorage() {
+        const saved = localStorage.getItem('budgetData');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            this.data.expenses = parsed.expenses || [];
+            this.data.income = parsed.income || [];
+            this.data.monthlyBudget = parsed.monthlyBudget || 0;
+            this.data.categories = parsed.categories || this.data.categories;
+            this.data.categoryIcons = parsed.categoryIcons || {};
+        }
+    }
+
+    saveToLocalStorage() {
+        localStorage.setItem('budgetData', JSON.stringify(this.data));
     }
 
     async loadDataFromAPI() {
@@ -474,7 +494,13 @@
 
 
     async addExpense() {
-        const exp = { date: document.getElementById('expenseDate').value, category: document.getElementById('expenseCategory').value, description: '', amount: parseFloat(document.getElementById('expenseAmount').value) };
+        const exp = { id: Date.now(), date: document.getElementById('expenseDate').value, category: document.getElementById('expenseCategory').value, description: '', amount: parseFloat(document.getElementById('expenseAmount').value) };
+        if (this.useLocalStorage) {
+            this.data.expenses.push(exp);
+            this.saveToLocalStorage();
+            this.updateUI(); this.hideModal(document.getElementById('expenseModal')); this.showMessage(this.t('expenseAdded'), 'success');
+            return;
+        }
         try {
             await fetch(this.apiBaseUrl + '/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(exp) });
             await this.loadDataFromAPI(); this.updateUI(); this.hideModal(document.getElementById('expenseModal')); this.showMessage(this.t('expenseAdded'), 'success');
@@ -482,7 +508,13 @@
     }
 
     async addIncome() {
-        const inc = { date: document.getElementById('incomeDate').value, category: document.getElementById('incomeCategory').value, description: '', amount: parseFloat(document.getElementById('incomeAmount').value) };
+        const inc = { id: Date.now(), date: document.getElementById('incomeDate').value, category: document.getElementById('incomeCategory').value, description: '', amount: parseFloat(document.getElementById('incomeAmount').value) };
+        if (this.useLocalStorage) {
+            this.data.income.push(inc);
+            this.saveToLocalStorage();
+            this.updateUI(); this.hideModal(document.getElementById('incomeModal')); this.showMessage(this.t('incomeAdded'), 'success');
+            return;
+        }
         try {
             await fetch(this.apiBaseUrl + '/api/income', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(inc) });
             await this.loadDataFromAPI(); this.updateUI(); this.hideModal(document.getElementById('incomeModal')); this.showMessage(this.t('incomeAdded'), 'success');
