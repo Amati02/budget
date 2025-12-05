@@ -6,6 +6,7 @@
 
 // Override loadDataFromAPI to use Supabase
 BudgetTracker.prototype.loadDataFromAPI = async function() {
+    this.isLoading = true;
     try {
         const [expenses, income, budget, categories] = await Promise.all([
             supabase.getExpenses(),
@@ -35,14 +36,21 @@ BudgetTracker.prototype.loadDataFromAPI = async function() {
         this.data.monthlyBudget = parseFloat(budget?.monthly_budget) || 0;
         this.data.categories = categories?.categories || this.data.categories;
         this.data.categoryIcons = categories?.categoryIcons || {};
+        this.isReady = true;
     } catch (error) {
         console.error('Error loading from Supabase:', error);
         throw error;
+    } finally {
+        this.isLoading = false;
     }
 };
 
 // Override addExpense
 BudgetTracker.prototype.addExpense = async function() {
+    if (this.isLoading) {
+        this.showMessage('Please wait, loading...', 'error');
+        return;
+    }
     const exp = { 
         date: document.getElementById('expenseDate').value, 
         category: document.getElementById('expenseCategory').value, 
@@ -50,19 +58,13 @@ BudgetTracker.prototype.addExpense = async function() {
         amount: parseFloat(document.getElementById('expenseAmount').value) 
     };
     try {
-        console.log('1. Adding expense to Supabase...');
         await supabase.addExpense(exp);
-        console.log('2. Expense added, loading data...');
         await this.loadDataFromAPI(); 
-        console.log('3. Data loaded, updating UI...');
         this.updateUI(); 
-        console.log('4. UI updated, hiding modal...');
         this.hideModal(document.getElementById('expenseModal')); 
-        console.log('5. Done!');
         this.showMessage(this.t('expenseAdded'), 'success');
     } catch (e) { 
-        console.error('Error adding expense at step:', e);
-        console.error('Error stack:', e.stack);
+        console.error('Error adding expense:', e);
         this.showMessage(this.t('errorAddingExpense'), 'error'); 
     }
 };
@@ -75,20 +77,18 @@ BudgetTracker.prototype.addIncome = async function() {
         description: '', 
         amount: parseFloat(document.getElementById('incomeAmount').value) 
     };
+    if (this.isLoading) {
+        this.showMessage('Please wait, loading...', 'error');
+        return;
+    }
     try {
-        console.log('1. Adding income to Supabase...');
         await supabase.addIncome(inc);
-        console.log('2. Income added, loading data...');
         await this.loadDataFromAPI(); 
-        console.log('3. Data loaded, updating UI...');
         this.updateUI(); 
-        console.log('4. UI updated, hiding modal...');
         this.hideModal(document.getElementById('incomeModal')); 
-        console.log('5. Done!');
         this.showMessage(this.t('incomeAdded'), 'success');
     } catch (e) { 
-        console.error('Error adding income at step:', e);
-        console.error('Error stack:', e.stack);
+        console.error('Error adding income:', e);
         this.showMessage(this.t('errorAddingIncome'), 'error'); 
     }
 };
@@ -190,6 +190,25 @@ BudgetTracker.prototype.removeCategory = async function(type, name) {
     } catch (e) {
         console.error('Error deleting category:', e);
         this.showMessage(this.t('errorDeletingCategory'), 'error');
+    }
+};
+
+// Hide loading overlay when ready
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => overlay.style.display = 'none', 300);
+    }
+}
+
+// Override init to hide loading when done
+const originalInit = BudgetTracker.prototype.init;
+BudgetTracker.prototype.init = async function() {
+    try {
+        await originalInit.call(this);
+    } finally {
+        hideLoadingOverlay();
     }
 };
 

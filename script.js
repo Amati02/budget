@@ -1,6 +1,8 @@
 ﻿class BudgetTracker {
     constructor() {
         this.apiBaseUrl = '';
+        this.isLoading = true;
+        this.isReady = false;
         this.data = {
             expenses: [], income: [], monthlyBudget: 0,
             categories: {
