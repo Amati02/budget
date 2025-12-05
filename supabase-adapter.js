@@ -6,7 +6,6 @@
 
 // Override loadDataFromAPI to use Supabase
 BudgetTracker.prototype.loadDataFromAPI = async function() {
-    console.log('Loading data from Supabase...');
     try {
         const [expenses, income, budget, categories] = await Promise.all([
             supabase.getExpenses(),
@@ -14,9 +13,6 @@ BudgetTracker.prototype.loadDataFromAPI = async function() {
             supabase.getBudget(),
             supabase.getCategories()
         ]);
-        
-        console.log('Loaded expenses:', expenses?.length || 0);
-        console.log('Loaded income:', income?.length || 0);
         
         this.data.expenses = (expenses || []).map(e => ({
             id: e.id,
@@ -39,8 +35,6 @@ BudgetTracker.prototype.loadDataFromAPI = async function() {
         this.data.monthlyBudget = parseFloat(budget?.monthly_budget) || 0;
         this.data.categories = categories?.categories || this.data.categories;
         this.data.categoryIcons = categories?.categoryIcons || {};
-        
-        console.log('Data loaded successfully');
     } catch (error) {
         console.error('Error loading from Supabase:', error);
         throw error;

@@ -795,12 +795,13 @@
     populateCategorySelects() {
         // Populate expense category grid
         const expenseGrid = document.getElementById('expenseCategoryGrid');
+        const selectedExpense = document.getElementById('expenseCategory')?.value;
         if (expenseGrid) {
             expenseGrid.innerHTML = '';
             this.data.categories.expense.forEach(cat => {
                 const iconHTML = this.getCategoryIconForGrid(cat);
                 const item = document.createElement('div');
-                item.className = 'category-grid-item';
+                item.className = 'category-grid-item' + (cat === selectedExpense ? ' selected' : '');
                 item.dataset.category = cat;
                 item.innerHTML = `<div class="category-icon">${iconHTML}</div><span>${cat}</span>`;
                 item.addEventListener('click', () => this.selectCategory('expense', cat));
@@ -810,12 +811,13 @@
         
         // Populate income category grid
         const incomeGrid = document.getElementById('incomeCategoryGrid');
+        const selectedIncome = document.getElementById('incomeCategory')?.value;
         if (incomeGrid) {
             incomeGrid.innerHTML = '';
             this.data.categories.income.forEach(cat => {
                 const iconHTML = this.getCategoryIconForGrid(cat);
                 const item = document.createElement('div');
-                item.className = 'category-grid-item';
+                item.className = 'category-grid-item' + (cat === selectedIncome ? ' selected' : '');
                 item.dataset.category = cat;
                 item.innerHTML = `<div class="category-icon">${iconHTML}</div><span>${cat}</span>`;
                 item.addEventListener('click', () => this.selectCategory('income', cat));
