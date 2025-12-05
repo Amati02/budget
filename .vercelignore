@@ -1,0 +1,8 @@
+server.js
+telegram-bot.js
+budget_data.json
+*.service
+deploy-simple.sh
+supabase/migrate-data.js
+node_modules
+.git
