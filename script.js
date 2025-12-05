@@ -622,7 +622,7 @@
         try { await fetch(this.apiBaseUrl + '/api/income/' + id, { method: 'DELETE' }); this.data.income = this.data.income.filter(i => i.id !== id); this.updateUI(); this.showMessage(this.t('deleted'), 'success'); } catch (e) { this.showMessage(this.t('error'), 'error'); }
     }
 
-    updateUI() { this.updateDashboard(); this.populateCategorySelects(); this.updateSettings(); }
+    updateUI() { this.updateDashboard(); this.populateCategorySelects(); this.updateSettings(); this.updateTransactionsPage(); }
 
     updateDashboard() {
         const { expenses, income } = this.getFilteredData();
