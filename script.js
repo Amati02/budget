@@ -1020,9 +1020,11 @@
     }
 
     applyDateRange() {
+        console.log('applyDateRange called');
         const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         const fromDate = formatDate(this.dateRangeStart);
         const toDate = formatDate(this.dateRangeEnd);
+        console.log('Date range:', fromDate, 'to', toDate);
         document.getElementById('transactionDateFrom').value = fromDate;
         document.getElementById('transactionDateTo').value = toDate;
         this.updateTransactionMonthDisplay();
