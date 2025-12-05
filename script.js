@@ -930,9 +930,14 @@
     }
 
     updateTransactionMonth() {
-        const months = this.t('months');
-        const el = document.getElementById('transactionCurrentMonth');
-        if (el) el.textContent = months[new Date().getMonth()];
+        // Use the selected date range, not always current month
+        if (this.dateRangeStart && this.dateRangeEnd) {
+            this.updateTransactionMonthDisplay();
+        } else {
+            const months = this.t('months');
+            const el = document.getElementById('transactionCurrentMonth');
+            if (el) el.textContent = months[new Date().getMonth()];
+        }
     }
 
     initDateRangePicker() {
@@ -1020,11 +1025,9 @@
     }
 
     applyDateRange() {
-        console.log('applyDateRange called');
         const formatDate = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         const fromDate = formatDate(this.dateRangeStart);
         const toDate = formatDate(this.dateRangeEnd);
-        console.log('Date range:', fromDate, 'to', toDate);
         document.getElementById('transactionDateFrom').value = fromDate;
         document.getElementById('transactionDateTo').value = toDate;
         this.updateTransactionMonthDisplay();
@@ -1035,18 +1038,14 @@
     updateTransactionMonthDisplay() {
         const months = this.t('months');
         const el = document.getElementById('transactionCurrentMonth');
-        console.log('updateTransactionMonthDisplay called', this.dateRangeStart, this.dateRangeEnd);
         if (el && this.dateRangeStart && this.dateRangeEnd) {
             const sameMonth = this.dateRangeStart.getMonth() === this.dateRangeEnd.getMonth() && 
                               this.dateRangeStart.getFullYear() === this.dateRangeEnd.getFullYear();
-            console.log('Start month:', this.dateRangeStart.getMonth(), 'End month:', this.dateRangeEnd.getMonth(), 'Same:', sameMonth);
             if (sameMonth) {
-                console.log('Setting to:', months[this.dateRangeStart.getMonth()]);
                 el.textContent = months[this.dateRangeStart.getMonth()];
             } else {
                 const startStr = months[this.dateRangeStart.getMonth()].substring(0,3);
                 const endStr = months[this.dateRangeEnd.getMonth()].substring(0,3);
-                console.log('Setting to range:', startStr + ' - ' + endStr);
                 el.textContent = startStr + ' - ' + endStr;
             }
         }
