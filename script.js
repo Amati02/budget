@@ -1022,7 +1022,6 @@
         const toDate = this.dateRangeEnd.toISOString().split('T')[0];
         document.getElementById('transactionDateFrom').value = fromDate;
         document.getElementById('transactionDateTo').value = toDate;
-        console.log('Date range applied:', fromDate, 'to', toDate);
         this.updateTransactionMonthDisplay();
         this.updateTransactionsPage();
         this.closeDateRange();
@@ -1031,11 +1030,15 @@
     updateTransactionMonthDisplay() {
         const months = this.t('months');
         const el = document.getElementById('transactionCurrentMonth');
-        if (el) {
-            if (this.dateRangeStart.getMonth() === this.dateRangeEnd.getMonth()) {
+        if (el && this.dateRangeStart && this.dateRangeEnd) {
+            const sameMonth = this.dateRangeStart.getMonth() === this.dateRangeEnd.getMonth() && 
+                              this.dateRangeStart.getFullYear() === this.dateRangeEnd.getFullYear();
+            if (sameMonth) {
                 el.textContent = months[this.dateRangeStart.getMonth()];
             } else {
-                el.textContent = months[this.dateRangeStart.getMonth()].substring(0,3) + ' - ' + months[this.dateRangeEnd.getMonth()].substring(0,3);
+                const startStr = months[this.dateRangeStart.getMonth()].substring(0,3);
+                const endStr = months[this.dateRangeEnd.getMonth()].substring(0,3);
+                el.textContent = startStr + ' - ' + endStr;
             }
         }
     }
