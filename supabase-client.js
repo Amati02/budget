@@ -23,9 +23,17 @@ class SupabaseClient {
             ...options,
             headers: { ...this.headers, ...options.headers }
         });
-        if (!res.ok) throw new Error(await res.text());
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Supabase error:', res.status, errorText);
+            throw new Error(errorText || 'Request failed');
+        }
         const text = await res.text();
-        return text ? JSON.parse(text) : null;
+        try {
+            return text ? JSON.parse(text) : null;
+        } catch (e) {
+            return null;
+        }
     }
 
     // Expenses
@@ -45,11 +53,12 @@ class SupabaseClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return result[0];
+        return result ? result[0] : data;
     }
 
     async deleteExpense(id) {
-        return this.fetch(`expenses?id=eq.${id}`, { method: 'DELETE' });
+        await this.fetch(`expenses?id=eq.${id}`, { method: 'DELETE' });
+        return true;
     }
 
     // Income
@@ -69,11 +78,12 @@ class SupabaseClient {
             method: 'POST',
             body: JSON.stringify(data)
         });
-        return result[0];
+        return result ? result[0] : data;
     }
 
     async deleteIncome(id) {
-        return this.fetch(`income?id=eq.${id}`, { method: 'DELETE' });
+        await this.fetch(`income?id=eq.${id}`, { method: 'DELETE' });
+        return true;
     }
 
     // Budget
