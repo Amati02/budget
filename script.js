@@ -628,7 +628,12 @@
         const { expenses, income } = this.getFilteredData();
         const totalExp = expenses.reduce((s, e) => s + e.amount, 0);
         const totalInc = income.reduce((s, i) => s + i.amount, 0);
-        document.getElementById('budgetBalance').textContent = this.formatCurrency(totalInc - totalExp);
+        const balance = totalInc - totalExp;
+        const balanceEl = document.getElementById('budgetBalance');
+        if (balanceEl) {
+            balanceEl.textContent = this.formatCurrency(balance, true);
+            balanceEl.classList.toggle('negative', balance < 0);
+        }
         document.getElementById('totalIncome').textContent = this.formatCurrency(totalInc);
         document.getElementById('totalExpenses').textContent = this.formatCurrency(totalExp);
         this.updateIncomeVsSpendingChart();
@@ -1669,8 +1674,12 @@
     }
 
 
-    formatCurrency(amt) { 
+    formatCurrency(amt, showSign = false) { 
+        const isNegative = amt < 0;
         const num = Math.abs(amt).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (showSign && isNegative) {
+            return '-' + this.currency + num;
+        }
         return this.currency + num;
     }
     

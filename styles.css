@@ -19,7 +19,8 @@ body { font-family: 'Inter', sans-serif; font-weight: 600; background: var(--bg-
 .content-section.active { display: block; }
 .budget-card { background: var(--primary); border-radius: 24px; padding: 24px; margin-bottom: 24px; text-align: center; position: relative; }
 .budget-label { display: block; font-size: 0.95rem; color: var(--bg-dark); opacity: 0.8; margin-bottom: 8px; }
-.budget-amount { display: block; font-size: 2.5rem; font-weight: 700; color: var(--bg-dark); margin-bottom: 20px; }
+.budget-amount { display: block; font-size: 2.5rem; font-weight: 700; color: var(--bg-dark); margin-bottom: 20px; transition: color 0.3s; }
+.budget-amount.negative { color: #ff4444; }
 .budget-actions { display: flex; gap: 12px; margin-bottom: 24px; }
 .action-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 16px; border-radius: 30px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
 .income-btn { background: var(--bg-dark); color: var(--text); }
