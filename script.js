@@ -1033,14 +1033,18 @@
     updateTransactionMonthDisplay() {
         const months = this.t('months');
         const el = document.getElementById('transactionCurrentMonth');
+        console.log('updateTransactionMonthDisplay called', this.dateRangeStart, this.dateRangeEnd);
         if (el && this.dateRangeStart && this.dateRangeEnd) {
             const sameMonth = this.dateRangeStart.getMonth() === this.dateRangeEnd.getMonth() && 
                               this.dateRangeStart.getFullYear() === this.dateRangeEnd.getFullYear();
+            console.log('Start month:', this.dateRangeStart.getMonth(), 'End month:', this.dateRangeEnd.getMonth(), 'Same:', sameMonth);
             if (sameMonth) {
+                console.log('Setting to:', months[this.dateRangeStart.getMonth()]);
                 el.textContent = months[this.dateRangeStart.getMonth()];
             } else {
                 const startStr = months[this.dateRangeStart.getMonth()].substring(0,3);
                 const endStr = months[this.dateRangeEnd.getMonth()].substring(0,3);
+                console.log('Setting to range:', startStr + ' - ' + endStr);
                 el.textContent = startStr + ' - ' + endStr;
             }
         }
