@@ -1740,8 +1740,77 @@
 
 
     attachSwipeHandlers() {
-        // Swipe-to-delete disabled - was causing accidental deletions
-        // Transactions can be deleted from the edit screen instead
+        document.querySelectorAll('.transaction-item').forEach(item => {
+            // Skip if already has swipe handler
+            if (item.dataset.swipeInit) return;
+            item.dataset.swipeInit = 'true';
+            
+            let startX = 0, currentX = 0, isDragging = false;
+            const minSwipeDistance = 50;
+            
+            // Create delete button
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'swipe-delete-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.style.cssText = 'position:absolute;right:0;top:0;bottom:0;width:60px;background:#ff4444;display:none;align-items:center;justify-content:center;color:white;font-size:1.2rem;border-radius:0 12px 12px 0;';
+            item.style.position = 'relative';
+            item.style.overflow = 'hidden';
+            item.appendChild(deleteBtn);
+            
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(item.dataset.id);
+                const type = item.dataset.type;
+                item.style.transform = 'translateX(-100%)';
+                item.style.opacity = '0';
+                setTimeout(() => {
+                    if (type === 'expense') this.deleteExpense(id);
+                    else this.deleteIncome(id);
+                }, 200);
+            });
+            
+            item.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                currentX = startX;
+                isDragging = true;
+                item.style.transition = 'none';
+            });
+            
+            item.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                if (diff < 0 && diff > -70) {
+                    item.style.transform = 'translateX(' + diff + 'px)';
+                }
+            });
+            
+            item.addEventListener('touchend', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                const diff = currentX - startX;
+                item.style.transition = 'transform 0.2s ease';
+                
+                if (diff < -minSwipeDistance) {
+                    // Show delete button
+                    item.style.transform = 'translateX(-60px)';
+                    deleteBtn.style.display = 'flex';
+                } else {
+                    // Reset position
+                    item.style.transform = 'translateX(0)';
+                    deleteBtn.style.display = 'none';
+                }
+            });
+            
+            // Hide delete button when clicking elsewhere
+            document.addEventListener('touchstart', (e) => {
+                if (!item.contains(e.target)) {
+                    item.style.transform = 'translateX(0)';
+                    item.style.transition = 'transform 0.2s ease';
+                    deleteBtn.style.display = 'none';
+                }
+            }, { passive: true });
+        });
     }
 
     setPresetDate(type, days) {
