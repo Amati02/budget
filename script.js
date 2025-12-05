@@ -1748,25 +1748,50 @@
             let startX = 0, currentX = 0, isDragging = false;
             const minSwipeDistance = 50;
             
-            // Create delete button
+            // Wrap item content and create delete button container
+            const wrapper = document.createElement('div');
+            wrapper.className = 'swipe-wrapper';
+            wrapper.style.cssText = 'position:relative;width:100%;';
+            
+            // Create delete button behind the card
             const deleteBtn = document.createElement('div');
             deleteBtn.className = 'swipe-delete-btn';
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-            deleteBtn.style.cssText = 'position:absolute;right:0;top:0;bottom:0;width:60px;background:#ff4444;display:none;align-items:center;justify-content:center;color:white;font-size:1.2rem;border-radius:0 12px 12px 0;';
-            item.style.position = 'relative';
-            item.style.overflow = 'hidden';
-            item.appendChild(deleteBtn);
+            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+            deleteBtn.style.cssText = 'position:absolute;right:-70px;top:50%;transform:translateY(-50%);width:50px;height:50px;background:#ff4444;display:flex;align-items:center;justify-content:center;color:white;font-size:1.2rem;border-radius:12px;cursor:pointer;z-index:10;';
+            
+            // Insert delete button after the item
+            item.parentNode.insertBefore(deleteBtn, item.nextSibling);
+            deleteBtn.style.display = 'none';
+            deleteBtn.style.position = 'absolute';
+            deleteBtn.style.right = '10px';
+            deleteBtn.style.top = item.offsetTop + (item.offsetHeight / 2) - 25 + 'px';
+            
+            const showDelete = () => {
+                deleteBtn.style.display = 'flex';
+                deleteBtn.style.position = 'absolute';
+                deleteBtn.style.right = '10px';
+                const rect = item.getBoundingClientRect();
+                const parentRect = item.parentNode.getBoundingClientRect();
+                deleteBtn.style.top = (rect.top - parentRect.top + rect.height/2 - 25) + 'px';
+            };
             
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const id = parseInt(item.dataset.id);
                 const type = item.dataset.type;
-                item.style.transform = 'translateX(-100%)';
-                item.style.opacity = '0';
-                setTimeout(() => {
-                    if (type === 'expense') this.deleteExpense(id);
-                    else this.deleteIncome(id);
-                }, 200);
+                if (type === 'expense') this.deleteExpense(id);
+                else this.deleteIncome(id);
+            });
+            
+            // Also handle touch on delete button
+            deleteBtn.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const id = parseInt(item.dataset.id);
+                const type = item.dataset.type;
+                if (type === 'expense') this.deleteExpense(id);
+                else this.deleteIncome(id);
             });
             
             item.addEventListener('touchstart', (e) => {
@@ -1780,8 +1805,11 @@
                 if (!isDragging) return;
                 currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
-                if (diff < 0 && diff > -70) {
+                if (diff < 0 && diff > -80) {
                     item.style.transform = 'translateX(' + diff + 'px)';
+                    if (diff < -30) {
+                        showDelete();
+                    }
                 }
             });
             
@@ -1792,19 +1820,17 @@
                 item.style.transition = 'transform 0.2s ease';
                 
                 if (diff < -minSwipeDistance) {
-                    // Show delete button
-                    item.style.transform = 'translateX(-60px)';
-                    deleteBtn.style.display = 'flex';
+                    item.style.transform = 'translateX(-70px)';
+                    showDelete();
                 } else {
-                    // Reset position
                     item.style.transform = 'translateX(0)';
                     deleteBtn.style.display = 'none';
                 }
             });
             
-            // Hide delete button when clicking elsewhere
+            // Hide delete button when touching elsewhere
             document.addEventListener('touchstart', (e) => {
-                if (!item.contains(e.target)) {
+                if (!item.contains(e.target) && !deleteBtn.contains(e.target)) {
                     item.style.transform = 'translateX(0)';
                     item.style.transition = 'transform 0.2s ease';
                     deleteBtn.style.display = 'none';
