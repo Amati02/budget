@@ -50,13 +50,19 @@ BudgetTracker.prototype.addExpense = async function() {
         amount: parseFloat(document.getElementById('expenseAmount').value) 
     };
     try {
+        console.log('1. Adding expense to Supabase...');
         await supabase.addExpense(exp);
+        console.log('2. Expense added, loading data...');
         await this.loadDataFromAPI(); 
+        console.log('3. Data loaded, updating UI...');
         this.updateUI(); 
+        console.log('4. UI updated, hiding modal...');
         this.hideModal(document.getElementById('expenseModal')); 
+        console.log('5. Done!');
         this.showMessage(this.t('expenseAdded'), 'success');
     } catch (e) { 
-        console.error('Error adding expense:', e);
+        console.error('Error adding expense at step:', e);
+        console.error('Error stack:', e.stack);
         this.showMessage(this.t('errorAddingExpense'), 'error'); 
     }
 };
@@ -70,13 +76,19 @@ BudgetTracker.prototype.addIncome = async function() {
         amount: parseFloat(document.getElementById('incomeAmount').value) 
     };
     try {
+        console.log('1. Adding income to Supabase...');
         await supabase.addIncome(inc);
+        console.log('2. Income added, loading data...');
         await this.loadDataFromAPI(); 
+        console.log('3. Data loaded, updating UI...');
         this.updateUI(); 
+        console.log('4. UI updated, hiding modal...');
         this.hideModal(document.getElementById('incomeModal')); 
+        console.log('5. Done!');
         this.showMessage(this.t('incomeAdded'), 'success');
     } catch (e) { 
-        console.error('Error adding income:', e);
+        console.error('Error adding income at step:', e);
+        console.error('Error stack:', e.stack);
         this.showMessage(this.t('errorAddingIncome'), 'error'); 
     }
 };
