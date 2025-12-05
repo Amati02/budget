@@ -1741,11 +1741,13 @@
 
     attachSwipeHandlers() {
         document.querySelectorAll('.transaction-item').forEach(item => {
-            let startX = 0, currentX = 0, isDragging = false;
+            let startX = 0, currentX = 0, isDragging = false, hasMoved = false;
             
             item.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
+                currentX = startX; // Initialize currentX to startX
                 isDragging = true;
+                hasMoved = false;
                 item.style.transition = 'none';
             });
             
@@ -1753,6 +1755,10 @@
                 if (!isDragging) return;
                 currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
+                // Only consider it a swipe if moved more than 10px
+                if (Math.abs(diff) > 10) {
+                    hasMoved = true;
+                }
                 if (diff < 0) {
                     item.style.transform = 'translateX(' + diff + 'px)';
                     item.style.opacity = 1 + (diff / 200);
@@ -1762,10 +1768,10 @@
             item.addEventListener('touchend', () => {
                 if (!isDragging) return;
                 isDragging = false;
-                const diff = currentX - startX;
                 item.style.transition = 'all 0.3s ease';
                 
-                if (diff < -100) {
+                // Only delete if user actually swiped (moved) and swiped far enough
+                if (hasMoved && (currentX - startX) < -100) {
                     item.style.transform = 'translateX(-100%)';
                     item.style.opacity = '0';
                     setTimeout(() => {
