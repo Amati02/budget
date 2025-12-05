@@ -301,9 +301,9 @@
 
     <div id="dateRangeModal" class="date-range-modal">
         <div class="date-range-header">
-            <button class="date-range-clear" id="dateRangeClear" data-i18n="clear">Clear</button>
+            <button class="date-range-clear" id="dateRangeClear" data-i18n="clear" onclick="budgetTracker.clearDateRange()">Clear</button>
             <span class="date-range-title" data-i18n="selectPeriod">Select period</span>
-            <button class="date-range-close" id="dateRangeClose" data-i18n="apply">Apply</button>
+            <button class="date-range-close" id="dateRangeClose" data-i18n="apply" onclick="budgetTracker.applyDateRange()">Apply</button>
         </div>
         <div class="date-range-presets">
             <button class="preset-btn" data-months="1" data-i18n="month">Month</button>
