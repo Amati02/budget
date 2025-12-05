@@ -39,6 +39,24 @@ CREATE TABLE categories (
 -- Insert default budget row
 INSERT INTO budget (id, monthly_budget) VALUES (1, 50000);
 
+-- Insert default expense categories
+INSERT INTO categories (type, name, icon) VALUES 
+    ('expense', 'Food', 'utensils'),
+    ('expense', 'Transport', 'car'),
+    ('expense', 'Shopping', 'shopping-bag'),
+    ('expense', 'Bills', 'file-invoice'),
+    ('expense', 'Entertainment', 'film'),
+    ('expense', 'Health', 'heart-pulse'),
+    ('expense', 'Other', 'ellipsis');
+
+-- Insert default income categories
+INSERT INTO categories (type, name, icon) VALUES 
+    ('income', 'Salary', 'briefcase'),
+    ('income', 'Freelance', 'laptop'),
+    ('income', 'Investment', 'chart-line'),
+    ('income', 'Gift', 'gift'),
+    ('income', 'Other', 'ellipsis');
+
 -- Enable Row Level Security (RLS) - for now, allow all access
 -- You can add authentication later if needed
 
