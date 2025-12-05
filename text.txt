@@ -1,0 +1,22 @@
+# Get the host IP that Traefik can reach
+HOST_IP=$(ip route show default | awk '/default/ {print $3}')
+echo "Host IP: $HOST_IP"
+
+# Update Traefik configuration with the correct IP
+cat > /opt/traefik-config/budget-tracker.yml << EOF
+http:
+  routers:
+    budget-tracker:
+      rule: "Host(\`budget.amatin8n.ru\`)"
+      service: budget-tracker
+      tls:
+        certResolver: letsencrypt
+  services:
+    budget-tracker:
+      loadBalancer:
+        servers:
+          - url: "http://$HOST_IP:8080"
+EOF
+
+# Restart Traefik
+docker restart n8n-compose_traefik_1

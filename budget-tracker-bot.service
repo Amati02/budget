@@ -1,0 +1,20 @@
+[Unit]
+Description=Budget Tracker Telegram Bot
+After=network.target budget-tracker.service
+Requires=budget-tracker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/budget-tracker
+Environment=NODE_ENV=production
+Environment=API_BASE_URL=http://localhost:4001
+Environment=BOT_TOKEN=8432533152:AAH7siLTo-nTsna7TiBYM9ZMiIjgngD0bFc
+ExecStart=/usr/bin/node telegram-bot.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+

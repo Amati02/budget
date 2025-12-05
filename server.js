@@ -11,6 +11,13 @@ const DATA_FILE = 'budget_data.json';
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Disable caching for static files (development)
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
+
 app.use(express.static('.')); // Serve static files from current directory
 
 // Initialize data file if it doesn't exist
@@ -31,7 +38,8 @@ if (!fs.existsSync(DATA_FILE)) {
                 'ЗП Адель', 'ЗП Кристина', 'Tax refund', 'родители Кристины', 'Other',
                 'доставка', 'подарки', 'ps5', 'кап'
             ]
-        }
+        },
+        categoryIcons: {}
     };
     fs.writeFileSync(DATA_FILE, JSON.stringify(initialData, null, 2), 'utf8');
 }
@@ -164,20 +172,30 @@ app.post('/api/budget', (req, res) => {
 app.get('/api/categories', (req, res) => {
     const data = readData();
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.json(data.categories);
+    res.json({
+        categories: data.categories,
+        categoryIcons: data.categoryIcons || {}
+    });
 });
 
 // Add category
 app.post('/api/categories', (req, res) => {
     const data = readData();
-    const { type, name } = req.body;
+    const { type, name, icon } = req.body;
     
     if (!data.categories[type]) {
         data.categories[type] = [];
     }
     
+    if (!data.categoryIcons) {
+        data.categoryIcons = {};
+    }
+    
     if (!data.categories[type].includes(name)) {
         data.categories[type].push(name);
+        if (icon) {
+            data.categoryIcons[name] = icon;
+        }
         
         if (writeData(data)) {
             res.json({ message: 'Category added successfully' });
@@ -189,6 +207,37 @@ app.post('/api/categories', (req, res) => {
     }
 });
 
+// Update category
+app.put('/api/categories/update', (req, res) => {
+    const data = readData();
+    const { type, oldName, newName, icon } = req.body;
+    
+    if (!data.categories[type]) {
+        return res.status(404).json({ error: 'Category type not found' });
+    }
+    
+    const index = data.categories[type].indexOf(oldName);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Category not found' });
+    }
+    
+    // Update category name
+    data.categories[type][index] = newName;
+    
+    // Update icon
+    if (!data.categoryIcons) data.categoryIcons = {};
+    if (oldName !== newName && data.categoryIcons[oldName]) {
+        delete data.categoryIcons[oldName];
+    }
+    data.categoryIcons[newName] = icon;
+    
+    if (writeData(data)) {
+        res.json({ message: 'Category updated successfully' });
+    } else {
+        res.status(500).json({ error: 'Failed to update category' });
+    }
+});
+
 // Delete category
 app.delete('/api/categories', (req, res) => {
     const data = readData();
@@ -196,6 +245,11 @@ app.delete('/api/categories', (req, res) => {
     
     if (data.categories[type]) {
         data.categories[type] = data.categories[type].filter(cat => cat !== name);
+        
+        // Also delete the icon
+        if (data.categoryIcons && data.categoryIcons[name]) {
+            delete data.categoryIcons[name];
+        }
         
         if (writeData(data)) {
             res.json({ message: 'Category deleted successfully' });
@@ -207,10 +261,23 @@ app.delete('/api/categories', (req, res) => {
     }
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Budget Tracker API server running on http://localhost:${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
+// Serve the main page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Catch-all for SPA routes (exclude API routes)
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/health')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Start server - CRITICAL: Bind to 0.0.0.0 for external access
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Budget Tracker API server running on http://0.0.0.0:${PORT}`);
+    console.log(`Health check: http://0.0.0.0:${PORT}/health`);
     console.log(`Data file: ${path.resolve(DATA_FILE)}`);
 });
 

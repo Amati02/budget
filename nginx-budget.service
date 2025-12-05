@@ -1,0 +1,17 @@
+[Unit]
+Description=Budget Tracker Nginx Proxy
+After=network.target budget-tracker.service
+Requires=budget-tracker.service
+
+[Service]
+Type=forking
+User=root
+ExecStart=/usr/sbin/nginx -c /opt/budget-tracker/nginx-budget.conf
+ExecReload=/usr/sbin/nginx -s reload -c /opt/budget-tracker/nginx-budget.conf
+ExecStop=/usr/sbin/nginx -s stop -c /opt/budget-tracker/nginx-budget.conf
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
