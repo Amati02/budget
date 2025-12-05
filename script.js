@@ -951,7 +951,10 @@
         } else {
             const months = this.t('months');
             const el = document.getElementById('transactionCurrentMonth');
-            if (el) el.textContent = months[new Date().getMonth()];
+            if (el && months && months.length > 0) {
+                const monthName = months[new Date().getMonth()];
+                if (monthName) el.textContent = monthName;
+            }
         }
     }
 
@@ -1053,15 +1056,17 @@
     updateTransactionMonthDisplay() {
         const months = this.t('months');
         const el = document.getElementById('transactionCurrentMonth');
-        if (el && this.dateRangeStart && this.dateRangeEnd) {
+        if (el && this.dateRangeStart && this.dateRangeEnd && months && months.length > 0) {
+            const startMonth = months[this.dateRangeStart.getMonth()];
+            const endMonth = months[this.dateRangeEnd.getMonth()];
+            if (!startMonth || !endMonth) return;
+            
             const sameMonth = this.dateRangeStart.getMonth() === this.dateRangeEnd.getMonth() && 
                               this.dateRangeStart.getFullYear() === this.dateRangeEnd.getFullYear();
             if (sameMonth) {
-                el.textContent = months[this.dateRangeStart.getMonth()];
+                el.textContent = startMonth;
             } else {
-                const startStr = months[this.dateRangeStart.getMonth()].substring(0,3);
-                const endStr = months[this.dateRangeEnd.getMonth()].substring(0,3);
-                el.textContent = startStr + ' - ' + endStr;
+                el.textContent = startMonth.substring(0,3) + ' - ' + endMonth.substring(0,3);
             }
         }
     }
