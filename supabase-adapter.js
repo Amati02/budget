@@ -1,41 +1,50 @@
 /**
  * Supabase Adapter for Budget Tracker
  * This overrides the BudgetTracker methods to use Supabase instead of Express API
+ * This file must be loaded AFTER script.js
  */
-
-// Store original methods before they're called
-const originalLoadDataFromAPI = BudgetTracker.prototype.loadDataFromAPI;
 
 // Override loadDataFromAPI to use Supabase
 BudgetTracker.prototype.loadDataFromAPI = async function() {
-    const [expenses, income, budget, categories] = await Promise.all([
-        supabase.getExpenses(),
-        supabase.getIncome(),
-        supabase.getBudget(),
-        supabase.getCategories()
-    ]);
-    
-    this.data.expenses = (expenses || []).map(e => ({
-        id: e.id,
-        date: e.date,
-        category: e.category,
-        description: e.description,
-        amount: parseFloat(e.amount),
-        createdAt: e.created_at
-    }));
-    
-    this.data.income = (income || []).map(i => ({
-        id: i.id,
-        date: i.date,
-        category: i.category,
-        description: i.description,
-        amount: parseFloat(i.amount),
-        createdAt: i.created_at
-    }));
-    
-    this.data.monthlyBudget = parseFloat(budget?.monthly_budget) || 0;
-    this.data.categories = categories?.categories || this.data.categories;
-    this.data.categoryIcons = categories?.categoryIcons || {};
+    console.log('Loading data from Supabase...');
+    try {
+        const [expenses, income, budget, categories] = await Promise.all([
+            supabase.getExpenses(),
+            supabase.getIncome(),
+            supabase.getBudget(),
+            supabase.getCategories()
+        ]);
+        
+        console.log('Loaded expenses:', expenses?.length || 0);
+        console.log('Loaded income:', income?.length || 0);
+        
+        this.data.expenses = (expenses || []).map(e => ({
+            id: e.id,
+            date: e.date,
+            category: e.category,
+            description: e.description,
+            amount: parseFloat(e.amount),
+            createdAt: e.created_at
+        }));
+        
+        this.data.income = (income || []).map(i => ({
+            id: i.id,
+            date: i.date,
+            category: i.category,
+            description: i.description,
+            amount: parseFloat(i.amount),
+            createdAt: i.created_at
+        }));
+        
+        this.data.monthlyBudget = parseFloat(budget?.monthly_budget) || 0;
+        this.data.categories = categories?.categories || this.data.categories;
+        this.data.categoryIcons = categories?.categoryIcons || {};
+        
+        console.log('Data loaded successfully');
+    } catch (error) {
+        console.error('Error loading from Supabase:', error);
+        throw error;
+    }
 };
 
 // Override addExpense
@@ -159,3 +168,6 @@ BudgetTracker.prototype.deleteIncome = async function(id) {
         this.showMessage(this.t('error'), 'error'); 
     }
 };
+
+// Now instantiate the BudgetTracker with Supabase methods
+const budgetTracker = new BudgetTracker();

@@ -8,8 +8,8 @@
  * 4. Run: node supabase/migrate-data.js
  */
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';  // e.g., https://xxxxx.supabase.co
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://wjckbvhycdoitzkeruwf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqY2tidmh5Y2RvaXR6a2VydXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ5MjYzMzAsImV4cCI6MjA4MDUwMjMzMH0.JyZnxsvwffODSa7bfrPtQODM3ktZl_YFKvwukz1pdDQ';
 
 const fs = require('fs');
 

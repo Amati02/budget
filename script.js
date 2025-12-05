@@ -1873,4 +1873,5 @@
 
 }
 
-const budgetTracker = new BudgetTracker();
+// Don't instantiate here - let the adapter modify the prototype first
+// The adapter or a separate script will create the instance
