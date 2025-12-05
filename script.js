@@ -44,6 +44,8 @@
                 currency: 'Currency',
                 expenseCategories: 'Expense Categories',
                 incomeCategories: 'Income Categories',
+                appSettings: 'App Settings',
+                clearCache: 'Clear Cache & Reload',
                 addNewCategory: 'Add New Category',
                 addNewExpenseCategory: 'Add New Expense Category',
                 addNewIncomeCategory: 'Add New Income Category',
@@ -122,6 +124,8 @@
                 currency: 'Валюта',
                 expenseCategories: 'Категории расходов',
                 incomeCategories: 'Категории доходов',
+                appSettings: 'Настройки приложения',
+                clearCache: 'Очистить кэш и перезагрузить',
                 addNewCategory: 'Новая категория',
                 addNewExpenseCategory: 'Новая категория расходов',
                 addNewIncomeCategory: 'Новая категория доходов',
@@ -287,6 +291,9 @@
             this.showSection('addCategory');
             this.updateAddCategoryTitle('income');
         });
+        
+        // Clear cache button
+        document.getElementById('clearCacheBtn')?.addEventListener('click', () => this.clearCacheAndReload());
         
         // Icon search
         document.getElementById('iconSearch')?.addEventListener('input', (e) => this.filterIcons(e.target.value));
@@ -1717,6 +1724,30 @@
             btn.classList.toggle('active', btn.dataset.currency === currency);
         });
         this.updateUI();
+    }
+    
+    async clearCacheAndReload() {
+        try {
+            // Unregister service worker
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (const registration of registrations) {
+                    await registration.unregister();
+                }
+            }
+            // Clear all caches
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (const cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                }
+            }
+            // Reload the page
+            window.location.reload(true);
+        } catch (e) {
+            console.error('Error clearing cache:', e);
+            window.location.reload(true);
+        }
     }
     
     updateCurrencyButtons() {

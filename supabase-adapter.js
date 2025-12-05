@@ -163,5 +163,23 @@ BudgetTracker.prototype.deleteIncome = async function(id) {
     }
 };
 
+// Override removeCategory
+BudgetTracker.prototype.removeCategory = async function(type, name) {
+    if (!confirm(`${this.t('deleteConfirm')} "${name}"?`)) return;
+    
+    try {
+        await supabase.deleteCategory(type, name);
+        this.data.categories[type] = this.data.categories[type].filter(c => c !== name);
+        if (this.data.categoryIcons && this.data.categoryIcons[name]) {
+            delete this.data.categoryIcons[name];
+        }
+        this.showMessage(this.t('categoryDeleted'), 'success');
+        this.updateUI();
+    } catch (e) {
+        console.error('Error deleting category:', e);
+        this.showMessage(this.t('errorDeletingCategory'), 'error');
+    }
+};
+
 // Now instantiate the BudgetTracker with Supabase methods
 const budgetTracker = new BudgetTracker();
